@@ -25,6 +25,15 @@ _STATIONS = {'023': 'TKSC', '022': 'SGS', '010': 'GNC', '011': 'HOA',
              '007': 'DKI', '006': 'CUB', '005': 'CHM', '004': 'BKT', '009': 'GLC',
              '008': 'EDC', '029': 'JSA', '028': 'COA', '021': 'PFS', '020': 'PAC'}
 
+def time_parse(timestr):
+    reg = '\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2}'
+    prog = re.compile(reg)
+    time = []
+    for match in re.finditer(cmpl, timestr):
+        time.append(match.group(0))
+
+    print(time)
+
 
 def band_name(path):
     name = path.stem
@@ -139,7 +148,6 @@ def prep_dataset(fields, path):
         'lineage': {'source_datasets': {}}
     }
     fields['id'] = doc['id']
-    print(fields['id'])
     populate_coord(doc)
     return doc
 
@@ -150,8 +158,6 @@ def dataset_folder(fields):
 
 
 # INPUT path is parsed for elements - below hardcoded for testing
-
-
 def prepare_datasets(s1a_path):
     print(s1a_path)
     fields = re.match(
@@ -187,4 +193,5 @@ def main(datasets):
 
 
 if __name__ == "__main__":
+    time_parse()
     main()
