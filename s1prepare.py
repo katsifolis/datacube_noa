@@ -26,13 +26,17 @@ _STATIONS = {'023': 'TKSC', '022': 'SGS', '010': 'GNC', '011': 'HOA',
              '008': 'EDC', '029': 'JSA', '028': 'COA', '021': 'PFS', '020': 'PAC'}
 
 def time_parse(timestr):
-    reg = '\d{4}\d{2}\d{2}T\d{2}\d{2}\d{2}'
+    reg = '\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}'
     prog = re.compile(reg)
-    time = []
-    for match in re.finditer(cmpl, timestr):
-        time.append(match.group(0))
+    time = "" 
+    for match in re.finditer(reg, timestr):
+        time = match.group(0)
 
-    print(time)
+    aos, los = time.split('_')
+    print(aos)
+    print(los)
+
+    return aos, los
 
 
 def band_name(path):
@@ -111,12 +115,10 @@ def prep_dataset(fields, path):
     #    lpgs_metadata_file = (global_metadata.find('{http://espa.cr.usgs.gov/v1.2}lpgs_metadata_file')).text
     #    groundstation = lpgs_metadata_file[16:19]
     #    fields.update({'instrument': instrument, 'satellite': satellite})
-    aos = crazy_parse('2016-03-01T23:59:59')
-    los = aos
+    print(fields)
+    start_time, end_time = time_parse(next(path.glob('*.tif')).name)
     fields['creation_dt'] = aos
     fields['satellite'] = 'SENTINEL_1A'
-    start_time = aos
-    end_time = los
     images = {band_name(im_path): {
         'path': str(im_path.relative_to(path))
     } for im_path in path.glob('*.tif')}
@@ -193,5 +195,4 @@ def main(datasets):
 
 
 if __name__ == "__main__":
-    time_parse()
     main()
