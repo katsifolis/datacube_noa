@@ -25,6 +25,7 @@ _STATIONS = {'023': 'TKSC', '022': 'SGS', '010': 'GNC', '011': 'HOA',
              '007': 'DKI', '006': 'CUB', '005': 'CHM', '004': 'BKT', '009': 'GLC',
              '008': 'EDC', '029': 'JSA', '028': 'COA', '021': 'PFS', '020': 'PAC'}
 
+# Parses a string and returns from -> to : YYYY-MM-DD_YYYY-MM-DD 
 def time_parse(timestr):
     reg = '\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}'
     prog = re.compile(reg)
