@@ -99,6 +99,8 @@ def prep_dataset(fields, path):
 
     doc = {
         'id': str(uuid.uuid4()),
+        # Strips the path of the suffix and generating a name for the generated yaml
+        'name': list(images.values())[0]['path'][:-4].replace('VV', '').replace('VH', ''),
         'processing_level': "terrain",
         'product_type': "gamma0",
         'creation_dt': aos,
@@ -157,7 +159,7 @@ def main(datasets):
         documents = prepare_datasets(path)
 
         dataset, folder = documents
-        yaml_path = str(folder.joinpath('agdc-metadata.yaml'))
+        yaml_path = str(folder.joinpath(dataset['name'] + '.yaml'))
         logging.info("Writing %s", yaml_path)
         with open(yaml_path, 'w') as stream:
             yaml.dump(dataset, stream)
