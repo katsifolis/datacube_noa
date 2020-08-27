@@ -30,30 +30,20 @@ def time_parse(timestr):
     reg = '\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}'
     prog = re.compile(reg)
     time = "" 
+
     for match in re.finditer(reg, timestr):
         time = match.group(0)
 
     aos, los = time.split('_')
-    print(aos)
-    print(los)
-
     return aos, los
 
 
 def band_name(path):
     name = path.stem
-    # position = name.find('_')
     if 'VH' in str(path):
-        layername = 'vh_gamma0'
+        layername = 'vh'
     if 'VV' in str(path):
-        layername = 'vv_gamma0'
-    # if position == -1:
-    #    raise ValueError('Unexpected tif image in eods: %r' % path)
-    # if re.match(r"[Bb]\d+", name[position+1:]):
-    #    layername = name[position+2:]
-
-    # else:
-    #    layername = name[position+1:]
+        layername = 'vv'
     return layername
 
 
@@ -97,29 +87,12 @@ def crazy_parse(timestr):
 
 
 def prep_dataset(fields, path):
-    # for file in os.listdir(str(path)):
-    #    if file.endswith(".xml") and (not file.endswith('aux.xml')):
-    #        metafile = file
-    # Parse xml ElementTree gives me a headache so using lxml
-    # doc = ElementTree.parse(os.path.join(str(path), metafile))
-    # TODO root method doesn't work here - need to include xlmns...
 
-    # for global_metadata in doc.findall('{http://espa.cr.usgs.gov/v1.2}global_metadata'):
-    #    satellite = (global_metadata.find('{http://espa.cr.usgs.gov/v1.2}satellite')).text
-    #    instrument = (global_metadata.find('{http://espa.cr.usgs.gov/v1.2}instrument')).text
-    #    acquisition_date = str((global_metadata
-    #             .find('{http://espa.cr.usgs.gov/v1.2}acquisition_date')).text).replace("-","")
-    #    scene_center_time = (global_metadata.find('{http://espa.cr.usgs.gov/v1.2}scene_center_time')).text[:8]
-    #    center_dt = crazy_parse(acquisition_date+"T"+scene_center_time)
-    #    aos = crazy_parse(acquisition_date+"T"+scene_center_time)-timedelta(seconds=(24/2))
-    #    los = aos + timedelta(seconds=24)
-    #    lpgs_metadata_file = (global_metadata.find('{http://espa.cr.usgs.gov/v1.2}lpgs_metadata_file')).text
-    #    groundstation = lpgs_metadata_file[16:19]
-    #    fields.update({'instrument': instrument, 'satellite': satellite})
-    print(fields)
-    start_time, end_time = time_parse(next(path.glob('*.tif')).name)
+    aos, los = time_parse(next(path.glob('*.tif')).name)
+
     fields['creation_dt'] = aos
     fields['satellite'] = 'SENTINEL_1A'
+
     images = {band_name(im_path): {
         'path': str(im_path.relative_to(path))
     } for im_path in path.glob('*.tif')}
@@ -131,25 +104,20 @@ def prep_dataset(fields, path):
         'creation_dt': aos,
         'platform': {'code': 'SENTINEL_1'},
         'instrument': {'name': 'SAR_C'},
-        'acquisition': {'groundstation': {'code': '023', 'aos': str(aos), 'los': str(los)}
-                        },
         'extent': {
-            'from_dt': str(start_time),
-            'to_dt': str(end_time),
-            'center_dt': str(aos)
+            'from_dt': str(aos),
+            'to_dt': str(los),
+      #      'center_dt': str(aos)
         },
         'format': {'name': 'GeoTIF'},
         'grid_spatial': {
             'projection': get_projection(path / next(iter(images.values()))['path'])
         },
         'image': {
-            # 'satellite_ref_point_start': {'path': 0, 'row': 0},
-            # 'satellite_ref_point_end': {'path': 0, 'row': 0},
             'bands': images
         },
-        # TODO include 'lineage': {'source_datasets': {'lpgs_metadata_file': lpgs_metadata_file}}
-        'lineage': {'source_datasets': {}}
     }
+
     fields['id'] = doc['id']
     populate_coord(doc)
     return doc
