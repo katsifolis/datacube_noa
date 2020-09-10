@@ -12,6 +12,10 @@
 2. Define the product and the metadata through the use of the datacube api
 3. Test the database with a simple jupyter notebook.
 
+### Activation
+
+* Run the script under /PATH_OF_YOUR_DATACUBE_INSTALLATION/datacube_env/bin/activate to get access to the virtualenv
+
 ### Problems - Observations
 
 * The path of the images-bands is incorrectly annotated if the rasters are in a subfolder.
@@ -23,4 +27,3 @@
 ### TODO
 
 * Implement recursive folder search to correct annotate the rasters' path.
-
